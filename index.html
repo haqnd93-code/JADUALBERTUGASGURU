@@ -3,6 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <title>Sistem Jadual Guru SMK Seri Rompin</title>
+    
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+
+      // Konfigurasi dari firebase.html
+      const firebaseConfig = {
+        apiKey: "AIzaSyA0EvDgw7AWSyCeWww-EOWRurM0GEXRRSw",
+        authDomain: "jadual-bertugas-guru.firebaseapp.com",
+        projectId: "jadual-bertugas-guru",
+        storageBucket: "jadual-bertugas-guru.firebasestorage.app",
+        messagingSenderId: "1046832814137",
+        appId: "1:1046832814137:web:f69f2873aec453189215e8",
+        measurementId: "G-Z2RD14NSG7"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      console.log("Firebase berjaya dihubungkan.");
+    </script>
+
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --blue: #2980b9; --bg: #f4f7f6; --save: #e67e22; --lock: #c0392b; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 10px; font-size: 11px; color: #333; margin: 0; }
@@ -41,18 +63,12 @@
         table.jadual-main th { background: #f2f2f2; height: 40px; }
         .hari-col { font-weight: bold; background: #f9f9f9; width: 80px; }
         
-        /* Seksyen Baca Laporan */
-        .laporan-teks { margin-top: 20px; font-size: 12px; line-height: 1.8; color: #000; }
-        .laporan-teks b { text-decoration: underline; }
-        #selectGuruLaporan { font-family: 'Segoe UI', sans-serif; font-weight: bold; border: 1px solid #ccc; padding: 2px; font-size: 12px; cursor: pointer; }
-
         .lencana-img { width: 100px; height: 100px; object-fit: contain; }
         .info-bar { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid black; padding-bottom: 8px; margin-bottom: 10px; font-size: 11px; }
 
         @media print { 
             .admin-panel, .no-print, #loginOverlay { display: none !important; } 
             .container { border: none; box-shadow: none; padding: 0; width: 100%; } 
-            #selectGuruLaporan { border: none; appearance: none; -webkit-appearance: none; color: black; font-weight: bold; text-decoration: underline; background: transparent; padding: 0; }
         }
     </style>
 </head>
@@ -83,7 +99,7 @@
                     <button class="btn btn-kump" onclick="tukarKumpulan('E')">E</button>
                 </div>
                 <textarea id="inputGuru" placeholder="Nama1, Nama2, Nama3..." oninput="kemaskiniSenaraiPilihan()"></textarea>
-                <button class="btn btn-save" onclick="simpanDataGuru()">💾 SIMPAN NAMA</button>
+                <button class="btn btn-save" onclick="simpanDataGuru()">💾 SIMPAN NAMA (LOKAL)</button>
             </div>
             <div class="config-box">
                 <strong>2. Jadual & Tarikh</strong>
@@ -106,9 +122,7 @@
         <table style="width: 100%; border: none; margin-bottom: 15px;">
             <tr>
                 <td style="width:110px;">
-                    <img src="https://scontent.fkul8-5.fna.fbcdn.net/v/t39.30808-6/638518389_25902767369385956_1881996554074073172_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=7b2446&_nc_ohc=UOkN7bnurhkQ7kNvwGn1b79&_nc_oc=Adminanna1EzuVwWHKRwDj672aMlOe18OoR06HUWt9bDONgIFLott2CXkKOwwhu15Cjs6lxqGUha4PE4EPJn_y9M&_nc_zt=23&_nc_ht=scontent.fkul8-5.fna&_nc_gid=tAnABlyotc3v8uEGQLZt_Q&_nc_ss=8&oh=00_AfumbSKEwzuwO9MrEe_Voa0C8v1tyc0y7BbyVUpIyUfR5g&oe=69A96DE9" 
-                         id="imgLencana" 
-                         class="lencana-img">
+                    <img src="https://scontent.fkul8-5.fna.fbcdn.net/v/t39.30808-6/638518389_25902767369385956_1881996554074073172_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=7b2446&_nc_ohc=UOkN7bnurhkQ7kNvwGn1b79&_nc_oc=Adminanna1EzuVwWHKRwDj672aMlOe18OoR06HUWt9bDONgIFLott2CXkKOwwhu15Cjs6lxqGUha4PE4EPJn_y9M&_nc_zt=23&_nc_ht=scontent.fkul8-5.fna&_nc_gid=tAnABlyotc3v8uEGQLZt_Q&_nc_ss=8&oh=00_AfumbSKEwzuwO9MrEe_Voa0C8v1tyc0y7BbyVUpIyUfR5g&oe=69A96DE9" class="lencana-img">
                 </td>
                 <td style="text-align: center;">
                     <div style="font-size: 18px; font-weight: bold; text-decoration: underline;">BORANG PERINCIAN GURU BERTUGAS MINGGUAN 2026</div>
@@ -138,15 +152,13 @@
             <tbody id="tableBody"></tbody>
         </table>
 
-        <div id="infoLaporan" class="laporan-teks" style="display:none;">
+        <div id="infoLaporan" style="margin-top: 20px; font-size: 12px; display:none;">
             Guru yang bertugas membaca laporan perhimpunan pada isnin minggu hadapan 
             (<b><span id="tarikhLaporan">-</span></b>) ialah 
-            <select id="selectGuruLaporan">
-                <option value="">- Sila Pilih Guru -</option>
-            </select>.
+            <select id="selectGuruLaporan" style="font-weight:bold; border:1px solid #ccc;"></select>.
         </div>
 
-        <div style="margin-top: 15px; display: flex; justify-content: space-around; text-align: center; font-size: 11px; font-weight: bold;">
+        <div style="margin-top: 30px; display: flex; justify-content: space-around; text-align: center; font-size: 11px; font-weight: bold;">
             <div>Disediakan oleh:<br><br><br><br>____________________<br>(Ketua Kumpulan)</div>
             <div>Disahkan oleh:<br><br><br><br>____________________<br>(Pentadbir)</div>
         </div>
@@ -155,14 +167,15 @@
 
 <script>
     const AUTH = { user: "Serin", pass: "12345" };
-
     const DATA_AWAL = {
-	'A': "NORADAWIYAH BINTI SUPANDI, TALHAH BIN ENDUT, ZAWAWI BIN TEHERAN, MUHAMMAD HANIS BIN SAKFIEE, NOOR ASHIKIN BT KAMARUDDIN, WAN AMIZA BT W. ABDULLAH, SITI NORIDAYU BT MOHD DERIS, PN. AZLINA BINTI A.AZIZ, NORASIKIN BT MOHAMAD NOOR",
+        'A': "NORADAWIYAH BINTI SUPANDI, TALHAH BIN ENDUT, ZAWAWI BIN TEHERAN, MUHAMMAD HANIS BIN SAKFIEE, NOOR ASHIKIN BT KAMARUDDIN, WAN AMIZA BT W. ABDULLAH, SITI NORIDAYU BT MOHD DERIS, PN. AZLINA BINTI A.AZIZ, NORASIKIN BT MOHAMAD NOOR",
         'B': "NOOR AZNIZA BINTI AZAHARI, BASHIRUDIN BIN ABD RAHIM, MOHD USRA BIN MD YUSOP, MOHAMAD FADZLI BIN RASLI, NIK FATIN FARAFISHA BINTI MOHD ZAMRI, NORFAZILAH BINTI ARIFIN, LILY NORSA'ADAH BINTI BASIR@BASRI, NOR SHARIZA BINTI MOHD ADNAM",
         'C': "NORAINI JAAFAR, MUHD SABRI B KADZIM, CHE MOHD RIZUAN B CHE TAIB, AMIRUL ARSYAD BIN MOHD, IEMA SOFEA BT KAMARUL ARIFIN, NORLILI BT ZULKIPLE, MARDIYYAH BT MOHD, SAKINAH BT ABD KOIYOM, NURHAFIZAH BT SIMAON",
         'D': "NURDIANA ATHIRAH BINTI MOHD KHAIRUDDIN, PAUZI BIN AWANG, MOHD ZUHAIMI BIN AWANG, RAJA MOHD FATHYIE BIN RAJA IBRAHIM, MOHD ARSYAD BIN TIIS, FAIZAH BT RAKIB, NOR AFIDAH BINTI OTHMAN, SHEE FOO LING, AFFIDAYATUL AIDA BINTI LATEH",
         'E': "MOHAMAD NASRULHAQ RAZALI, BUSTAMI BIN AHMAD, MOHD ZULHILMI B ZULKIFLI, BAHARUDIN BIN ALIAS, ROSLINA BT ALLI, CHE WAN JOHANA BT CHE WAN JOHAR, WAN NOR IZZATI BT WAN MOHD BASHAR, AZMA HANIM BT ABD AZIZ, HAFSAH BT ABU BAKAR, SHARIFAH AMIRAH"
     };
+
+    let kumpulanAktif = 'E';
 
     function checkLogin() {
         const u = document.getElementById('username').value;
@@ -173,11 +186,9 @@
         } else { document.getElementById('loginError').style.display = 'block'; }
     }
 
-    let kumpulanAktif = 'E';
-
     function simpanDataGuru() {
         localStorage.setItem('guru_v27_5_' + kumpulanAktif, document.getElementById('inputGuru').value);
-        alert('Data ' + kumpulanAktif + ' disimpan!');
+        alert('Data ' + kumpulanAktif + ' disimpan dalam pelayar ini!');
         kemaskiniSenaraiPilihan();
     }
 
@@ -203,8 +214,6 @@
         const input = document.getElementById('inputGuru').value;
         const senarai = input.split(',').map(s => s.trim()).filter(s => s !== "");
         const select = document.getElementById('selectGuruLaporan');
-        
-        // Simpan pilihan semasa jika ada
         const currentVal = select.value;
         
         select.innerHTML = '<option value="">- Sila Pilih Guru -</option>';
@@ -214,22 +223,14 @@
             opt.innerText = nama.toUpperCase();
             select.appendChild(opt);
         });
-
-        // Set semula nilai jika guru tersebut masih ada dalam senarai
-        if(senarai.map(n => n.toUpperCase()).includes(currentVal)) {
-            select.value = currentVal;
-        }
+        if(senarai.map(n => n.toUpperCase()).includes(currentVal)) select.value = currentVal;
     }
 
     function tukarKumpulan(k) {
         kumpulanAktif = k;
         document.querySelectorAll('.btn-kump').forEach(b => b.classList.toggle('active', b.innerText === k));
         document.getElementById('dispKumpLabel').innerText = k;
-        
-        let data = localStorage.getItem('guru_v27_5_' + k);
-        if(!data) {
-            data = DATA_AWAL[k] || "";
-        }
+        let data = localStorage.getItem('guru_v27_5_' + k) || DATA_AWAL[k] || "";
         document.getElementById('inputGuru').value = data;
         kemaskiniSenaraiPilihan();
     }
@@ -243,10 +244,6 @@
         if(list.length < 8) { alert("Sila isi sekurang-kurangnya 8 nama guru."); return; }
 
         const hariArr = ['ISNIN', 'SELASA', 'RABU', 'KHAMIS', 'JUMAAT'];
-        
-        // Pilih guru laporan secara rawak sebagai cadangan awal
-        let guruRawak = list[Math.floor(Math.random() * list.length)].toUpperCase();
-        document.getElementById('selectGuruLaporan').value = guruRawak;
         document.getElementById('infoLaporan').style.display = 'block';
 
         hariArr.forEach((h) => {
